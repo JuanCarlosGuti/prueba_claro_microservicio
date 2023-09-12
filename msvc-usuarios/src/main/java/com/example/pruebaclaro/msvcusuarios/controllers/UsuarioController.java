@@ -20,11 +20,13 @@ public class UsuarioController {
     @Autowired
     private UsuarioService service;
 
+    // Método para listar todos los usuarios
     @GetMapping
     public Map<String, List<Usuario>> listar() {
         return Collections.singletonMap("usuarios", service.listar());
     }
 
+    // Método para obtener detalles de un usuario por su ID
     @GetMapping("/{id}")
     public ResponseEntity<?> detalle(@PathVariable Long id) {
         Optional<Usuario> usuarioOptional = service.porId(id);
@@ -34,6 +36,7 @@ public class UsuarioController {
         return ResponseEntity.notFound().build();
     }
 
+    // Método para crear un nuevo usuario
     @PostMapping
     public ResponseEntity<?> crear(@Valid @RequestBody Usuario usuario, BindingResult result) {
 
@@ -43,12 +46,12 @@ public class UsuarioController {
 
         if (service.porEmail(usuario.getEmail()).isPresent()) {
             return ResponseEntity.badRequest()
-                    .body(Collections
-                            .singletonMap("mensaje", "Ya existe! un usuario con ese email electrónico!"));
+                    .body(Collections.singletonMap("mensaje", "Ya existe un usuario con ese email electrónico!"));
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(service.guardar(usuario));
     }
 
+    // Método para editar un usuario existente por su ID
     @PutMapping("/{id}")
     public ResponseEntity<?> editar(@Valid @RequestBody Usuario usuario, BindingResult result, @PathVariable Long id) {
 
@@ -63,8 +66,7 @@ public class UsuarioController {
                     !usuario.getEmail().equalsIgnoreCase(usuarioDb.getEmail()) &&
                     service.porEmail(usuario.getEmail()).isPresent()) {
                 return ResponseEntity.badRequest()
-                        .body(Collections
-                                .singletonMap("mensaje", "Ya existe un usuario con ese correo electronico!"));
+                        .body(Collections.singletonMap("mensaje", "Ya existe un usuario con ese correo electrónico!"));
             }
 
             usuarioDb.setNombre(usuario.getNombre());
@@ -76,6 +78,7 @@ public class UsuarioController {
         return ResponseEntity.notFound().build();
     }
 
+    // Método para eliminar un usuario por su ID
     @DeleteMapping("/{id}")
     public ResponseEntity<?> eliminar(@PathVariable Long id) {
         Optional<Usuario> o = service.porId(id);
@@ -86,8 +89,7 @@ public class UsuarioController {
         return ResponseEntity.notFound().build();
     }
 
-
-
+    // Método privado para manejar errores de validación
     private ResponseEntity<Map<String, String>> validar(BindingResult result) {
         Map<String, String> errores = new HashMap<>();
         result.getFieldErrors().forEach(err -> {
