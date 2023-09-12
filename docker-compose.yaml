@@ -1,0 +1,40 @@
+version: "3.9"
+services:
+  mysql8:
+    container_name: mysql8
+    image: mysql:8
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: Wire2681
+      MYSQL_DATABASE: msvc_usuarios
+    volumes:
+      - data-mysql:/var/lib/mysql
+    restart: always
+    networks:
+      - spring
+
+  msvc-usuarios:
+    container_name: msvc-usuarios
+    build:
+      context: ./msvc-usuarios
+      dockerfile: ./Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql8:3306/msvc_usuarios?useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: Wire2681
+    networks:
+      - spring
+    depends_on:
+      - mysql8
+    restart: always
+
+volumes:
+  data-mysql:
+    name: data-mysql
+
+networks:
+  spring:
+    name: spring
